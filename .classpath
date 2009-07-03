@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="ch.epfl.lamp.sdt.launching.SCALA_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/Chesspresso-lib.jar"/>
+	<classpathentry kind="lib" path="lib/jakarta-regexp-1.5.jar"/>
+	<classpathentry kind="lib" path="lib/joda-time-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/twitter4j-2.0.8.jar" sourcepath="lib-src/twitter4j-2.0.8-sources.jar"/>
+	<classpathentry kind="lib" path="test/lib/mockito-all-1.8.0-rc2.jar"/>
+	<classpathentry kind="lib" path="lib/mail.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
