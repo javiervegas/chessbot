@@ -4,8 +4,9 @@ class ChessClient extends TwitterClient {
   
 }
 
-object ChessClient {
+object ChessClient extends TwitterClient {
 
+  
   private val singleton = new ChessClient
   def get = singleton
 }

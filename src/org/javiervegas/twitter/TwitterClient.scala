@@ -14,8 +14,8 @@ import twitter4j.org.json._
 
 trait TwitterClient extends Actor {
   
-  //private var aggregators: Option[Map[User,Aggregator]] = None
-  
+  //private var aggregators: Option[Map[User,Aggregator]] = None 
+                          
   def act() = {
     val (start_id, start_cnt) = read_run_data
     //save_run_data(start_id+600,start_cnt+500)
@@ -33,6 +33,10 @@ trait TwitterClient extends Actor {
       dispatch(mentions)
       run(now_fetched, sent)
     }
+    case TwitterClient.Command.FetchFollowers => {
+      followers
+      run(last_fetched,sent)
+    }
     case Pair(text: String, replyTo: long) => {
       var replied = mytwitter.updateStatus(text, replyTo)
       TwitterClient.LOG.error("replid "+text)
@@ -45,10 +49,7 @@ trait TwitterClient extends Actor {
   private val mytwitter:Twitter = {
       TwitterClient.LOG.debug("initializing Twitter object")
       val mytwitter = new Twitter
-      mytwitter setOAuthAccessToken(
-          Configuration getProperty("twitter4j.oauth.userKey"),
-          Configuration getProperty("twitter4j.oauth.userSecret")
-      )
+      mytwitter setOAuthAccessToken(TwitterClient.userKey,TwitterClient.userSecret)
       mytwitter
   }
 
@@ -59,10 +60,22 @@ trait TwitterClient extends Actor {
         case l if l.isEmpty => last_fetched
         case _ => newMentions.map(_.getId).sort(_>_).first
       }
-      TwitterClient.LOG.debug(newMentions.size+" fetched,last one is "+now_fetched)
+      TwitterClient.LOG.error(newMentions.size+" fetched,last one is "+now_fetched)
       (now_fetched,newMentions)
   }
 
+  def followers() = {
+    val followers = mytwitter.getFollowersIDs.getIDs
+    val followed = mytwitter.getFriendsIDs.getIDs
+    followers.filter(!followed.contains(_)).map(_.toString).foreach({s:String => 
+      TwitterClient.LOG.error("friending "+s)
+      try {
+        mytwitter.createFriendship(s)
+      } catch {
+        case e:Exception => TwitterClient.LOG.error(e);null
+      }
+    })
+  }
   
   def dispatch(mentions: List[Status]) = { 
     mentions match {
@@ -100,7 +113,11 @@ trait TwitterClient extends Actor {
 }
 
 object TwitterClient {
-  private val LOG = Logger.getLogger(this.getClass)
+  protected val LOG = Logger.getLogger(this.getClass)
+  
+  val userKey = "50588699-2MPu4doo60Xu4v0s1h8KWY9hxGSJ7DGdfJHVYJaZK"
+  val userSecret = "4kSdO72rFpC786p2lNyS5zRe62hqRTRRF6lAWriGfE"
+  
   object Command extends Enumeration {
     type Command = Value
     val FetchMentions, FetchFollowers = Value

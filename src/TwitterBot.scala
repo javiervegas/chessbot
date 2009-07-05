@@ -24,7 +24,7 @@ object TwitterBot extends Application {
   }
 
   def run {
-    //Client.get ! FetchFollowers
+    client ! TwitterClient.Command.FetchFollowers
     client ! TwitterClient.Command.FetchMentions
     Thread sleep run_at_interval
     run
