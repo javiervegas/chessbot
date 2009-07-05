@@ -37,9 +37,10 @@ trait TwitterClient extends Actor {
       followers
       run(last_fetched,sent)
     }
-    case Pair(text: String, replyTo: long) => {
-      var replied = mytwitter.updateStatus(text, replyTo)
-      TwitterClient.LOG.error("replid "+text)
+    case Pair(text: String, replyTo: User) => {
+      TwitterClient.LOG.error("DMing "+replyTo)
+      var replied = mytwitter.sendDirectMessage(replyTo.getScreenName, text)
+      TwitterClient.LOG.error("DMed "+text)
       val serialize = new FileWriter(new File("last_turn")).write(last_fetched.toString+"|"+sent+1)
       save_run_data(last_fetched,sent+1)
       run(last_fetched,sent+1)
@@ -71,6 +72,9 @@ trait TwitterClient extends Actor {
       TwitterClient.LOG.error("friending "+s)
       try {
         mytwitter.createFriendship(s)
+        val ag = new Aggregator
+        ag.start
+        ag ! mytwitter.getUserDetail(s)
       } catch {
         case e:Exception => TwitterClient.LOG.error(e);null
       }
