@@ -3,7 +3,7 @@ import org.javiervegas.twitter._
 object TwitterBot extends Application {
 
   private val client: TwitterClient = ChessClient.get
-  private val run_at_interval = 1000*40 //40 seconds
+  private val run_at_interval = 1000*41 //40 seconds
   //private val Client = new Client 
 
     /*
@@ -25,9 +25,9 @@ object TwitterBot extends Application {
 
   def run {
     client ! TwitterClient.Command.FetchFollowers
-    //client ! TwitterClient.Command.FetchMentions
-    //Thread sleep run_at_interval
-    //run
+    client ! TwitterClient.Command.FetchDMs
+    Thread sleep run_at_interval
+    run
   }
 
 }

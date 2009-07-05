@@ -23,14 +23,10 @@ trait TwitterClient extends Actor {
   }
   
   private def run(last_fetched: Long, sent: Int):Unit = react {
-    //case Client.Command.FetchFollowers => {
-      //fetch_followers(last_fetched)
-      //run(last_fetched,sent)
-    //}
-    case TwitterClient.Command.FetchMentions => {
-      TwitterClient.LOG.debug("fetching mentions newer than id "+last_fetched)
-      val (now_fetched,mentions) = fetch(last_fetched)
-      dispatch(mentions)
+    case TwitterClient.Command.FetchDMs => {
+      TwitterClient.LOG.debug("fetching DMs newer than id "+last_fetched)
+      val (now_fetched,dms) = fetchDMs(last_fetched)
+      dispatch(dms)
       run(now_fetched, sent)
     }
     case TwitterClient.Command.FetchFollowers => {
@@ -54,15 +50,15 @@ trait TwitterClient extends Actor {
       mytwitter
   }
 
-  def fetch(last_fetched: Long) = {
-      val newMentions = Collections.asList(mytwitter.getMentions(new Paging(last_fetched)))
-      val now_fetched = newMentions match {
+  def fetchDMs(last_fetched: Long) = {
+      val newDMs = Collections.asList(mytwitter.getDirectMessages(new Paging(last_fetched)))
+      val now_fetched = newDMs match {
         //case None => last_fetched
         case l if l.isEmpty => last_fetched
-        case _ => newMentions.map(_.getId).sort(_>_).first
+        case _ => newDMs.map(_.getId.toLong).sort(_>_).first
       }
-      TwitterClient.LOG.error(newMentions.size+" fetched,last one is "+now_fetched)
-      (now_fetched,newMentions)
+      TwitterClient.LOG.error(newDMs.size+" fetched,last one is "+now_fetched)
+      (now_fetched,newDMs)
   }
 
   def followers() = {
@@ -81,7 +77,7 @@ trait TwitterClient extends Actor {
     })
   }
   
-  def dispatch(mentions: List[Status]) = { 
+  def dispatch(mentions: List[DirectMessage]) = { 
     mentions match {
       case l if l.isEmpty =>     TwitterClient.LOG.debug("nothing to  dispatch")
       case _ => {
@@ -92,8 +88,8 @@ trait TwitterClient extends Actor {
         case _ => b+a.getUser->a::b(a.getUser)
     }}) */
     val one = mentions.reduceLeft((a,b)=>a)
-    val map = Map(one.getUser->List(one)) //TODO
-    TwitterClient.LOG.debug("dispatching "+one.getId+" for "+one.getUser)
+    val map = Map(one.getSender->List(one)) //TODO
+    TwitterClient.LOG.debug("dispatching "+one.getId+" for "+one.getSender)
     map.foreach(kv=>{
       val ag = new Aggregator
       ag.start
@@ -124,7 +120,7 @@ object TwitterClient {
   
   object Command extends Enumeration {
     type Command = Value
-    val FetchMentions, FetchFollowers = Value
+    val FetchDMs, FetchFollowers = Value
   }
 }
 

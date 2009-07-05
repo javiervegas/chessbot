@@ -6,7 +6,7 @@ import org.javiervegas.mail.JavaxMailer
 import scala.actors.Actor
 import scala.actors.Actor._
 import org.apache.log4j.Logger
-import twitter4j.{User,Status}
+import twitter4j.{User,DirectMessage}
 
 class Aggregator extends Actor {
   
@@ -24,12 +24,12 @@ class Aggregator extends Actor {
         val response = chess !? Game(newFriend.getId.toLong,None)
         ChessClient.get ! Pair(writeUpdate(response, newFriend.getScreenName),newFriend)
       }
-      case l: List[Status] if !l.isEmpty  => {
+      case l: List[DirectMessage] if !l.isEmpty  => {
         val replyTo = l.reduceLeft((a,b)=>a) //TODO improve this to better extract status info
         //message the chess engine and waits for a chess move response
         val response = chess !? getGame(replyTo)
         //send status update to the TwitterClient
-        ChessClient.get ! Pair(writeUpdate(response,replyTo.getUser.getScreenName),replyTo.getUser)
+        ChessClient.get ! Pair(writeUpdate(response,replyTo.getSender.getScreenName),replyTo.getSender)
       }
       //got something weird from the TwitterClient, not sure what to about it
       case o:Any => Aggregator.LOG.debug("Houston, we have a problem, the TwitterClient is sending gibberish "+o)
@@ -71,12 +71,12 @@ class Aggregator extends Actor {
   }
   
   //extracts chessmove from status update
-  def getGame(message: Status):Game =  {
+  def getGame(message: DirectMessage):Game =  {
       val z = message.getText.split(' ')
       z match {
-        case z if z(0).contains(".") => Game(message.getUser.getId,Some(new Ply(z(0))))
-        case z if z.reverse(0).contains(".") => Game(message.getUser.getId,Some(new Ply(z.reverse(0))))
-        case _ => Game(message.getUser.getId,None)
+        case z if z(0).contains(".") => Game(message.getSender.getId,Some(new Ply(z(0))))
+        case z if z.reverse(0).contains(".") => Game(message.getSender.getId,Some(new Ply(z.reverse(0))))
+        case _ => Game(message.getSender.getId,None)
       }
   }
   
