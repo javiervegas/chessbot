@@ -31,7 +31,11 @@ class JavaxMailer(from: String ,to: String, subject :String, body: String, attac
       }
       
       message.setContent(multipart)
-      Transport.send(message)
+      try {
+        Transport.send(message)
+      } catch {
+        case _ => //ignore
+      }
       false
   }
   

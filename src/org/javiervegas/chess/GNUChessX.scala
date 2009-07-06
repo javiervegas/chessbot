@@ -21,7 +21,7 @@ class GNUChessX extends Actor with Engine {
       val sb = new StringBuilder
       GNUChessX.LOG.error("responding to "+game)
       game match {
-        case Game(i: Long,Some(Ply(j,_))) => output.println("load data/chess/"+i+"_"+(j-1)+".fen")
+        case Game(i: Long,Some(Ply(j,_))) => output.println("load data/chess/fen/"+i+"_"+j+".fen")
         case _ => println
       }
       output.println(game match {
@@ -49,11 +49,11 @@ class GNUChessX extends Actor with Engine {
         case Game(_: Long,Some(Ply(i: Int,_))) => i+1
       }
       output.println("hint")
-      val hints =  List(Ply(order+1, input.readLine.split("Hint: ")(1).trim))
+      val hints =  List(Ply(order, input.readLine.split("Hint: ")(1).trim))
       
       val ply = sb.toString match { 
         case s:String if s.contains("My move is :") => {
-            val saveTo = "data/chess/"+{game match{case Game(i: Long,_)=>i}}+"_"+order+".fen"
+            val saveTo = "data/chess/fen/"+{game match{case Game(i: Long,_)=>i}}+"_"+order+".fen"
             (new File(saveTo)).delete//so it can be overwritten
             output.println("save "+saveTo)
             Some(new Ply(order, s.split("My move is :")(1).trim))

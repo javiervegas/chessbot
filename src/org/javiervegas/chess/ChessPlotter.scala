@@ -7,9 +7,9 @@ import java.io.File
 
 class ChessPlotter(position: Position) {
   
-  def plot() = {
+  def plot(name: String) = {
       //val output = new BufferedOutputStream(new ByteArrayOutputStream)
-      val output = new File("tmp/"+position.toString+".png")
+      val output = new File("data/chess/img/"+name+".png")
       val bi = new BufferedImage(32*8, 32*8, BufferedImage.TYPE_BYTE_BINARY)
       val g2d = bi.createGraphics
       g2d.setBackground(java.awt.Color.WHITE)
