@@ -42,8 +42,8 @@ class Aggregator extends Actor {
   def writeUpdate(response: Any, name: String, challenge: Option[Game])  = response match {
     case Move(Some(Ply(i:Int,s:String)),position,hints) => {
       challenge match {
-        case None =>
         case Some(Game(_,Some(Ply(_,m)))) => logBlack(name, m)
+        case _ =>
       }
       logWhite(name,i,s)
       "@"+name+" "+update_ply(Ply(i,s)) + update_hints(hints)+ update_position_image(response, name)
