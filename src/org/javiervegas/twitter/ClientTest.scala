@@ -35,10 +35,12 @@ object ClientTest extends Application {
 //    twitterField.set(null,mctwitter)
 //    when(mctwitter.getMentions(new Paging(1L))).thenReturn(new ArrayList[Status]())
 */
-    val result = ChessClient.get.fetchDMs(1);
+    //val result = ChessClient.get.fetchDMs(1);
     //if (r
     //assertTrue(result._2.size == 0)
-    println(result._1)
-    println(result._2)
-    println("done")
+    //println(result._1)
+    //println(result._2)
+    //println("done")
+    
+    println((new Aggregator)fixCase("1.bty"))
 }

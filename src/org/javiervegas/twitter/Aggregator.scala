@@ -86,12 +86,26 @@ class Aggregator extends Actor {
   
   //extracts chessmove from status update
   def getGame(message: DirectMessage):Game =  {
+      val sender = message.getSender.getId
       val z = message.getText.split(' ')
-      z match {
-        case z if z(0).contains(".") => Game(message.getSender.getId,Some(new Ply(z(0))))
-        case z if z.reverse(0).contains(".") => Game(message.getSender.getId,Some(new Ply(z.reverse(0))))
-        case _ => Game(message.getSender.getId,None)
+      val ply = z match {
+        case z if z(0).contains(".") => z(0) //first word
+        case z if z.reverse(0).contains(".") => z.reverse(0)//last word
+        case _ => None
       }
+      ply match {
+        case Some(p:String) => Game(sender, Some(new Ply(fixCase(p))))
+        case _ => Game(sender, None)
+      }
+  }
+  
+  def fixCase(ply:String) = {
+    ply match {
+      case s:String if s.length > 2 => s.substring(0,s.indexOf(".")+1)+
+        s.substring(s.indexOf(".")+1,s.indexOf(".")+2).toUpperCase+
+        s.substring(s.indexOf(".")+2)
+      case s:String => s
+    }
   }
   
   def update_ply(ply: Ply):String = {
